@@ -49,7 +49,7 @@ object ApplicationHarness {
   @annotation.tailrec
   private def retry[A](attempts: Int, attempt: Int)
                       (f: (Int) => A): Try[A] = Try(f(attempt)) match {
-    case success: Success[A] => success
+    case success @ Success(_) => success
     case _ if attempts > 1 => retry(attempts - 1, attempt + 1)(f)
     case failure => failure
   }

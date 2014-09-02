@@ -1,7 +1,5 @@
 package io.dropwizard.scala.jersey.inject
 
-import language.higherKinds
-
 import collection.generic.CanBuildFrom
 import com.sun.jersey.server.impl.model.parameter.multivalued.MultivaluedParameterExtractor
 import javax.ws.rs.core.MultivaluedMap
@@ -33,12 +31,15 @@ class CollectionParameterExtractor[A, Col[_] <: TraversableOnce[_]]
   def getDefaultStringValue = defaultValue
 
   def extract(parameters: MultivaluedMap[String, String]): Object = {
-    Option(parameters.get(name))
+    val x = Option(parameters.get(name))
       .map(_.asScala)
       .getOrElse(default)
       .map(fromString)
-      .to[Col](bf)
-      .asInstanceOf[Object]
+
+    val coll = bf()
+    coll.sizeHint(x)
+    coll ++= x
+    coll.result().asInstanceOf[Object]
   }
 }
 

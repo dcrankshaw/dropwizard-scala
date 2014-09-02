@@ -1,11 +1,8 @@
 package io.dropwizard.scala.jdbi.tweak
 
-import scala.language.higherKinds
-
 import org.skife.jdbi.v2.ContainerBuilder
 import org.skife.jdbi.v2.tweak.ContainerFactory
 import scala.collection.generic.CanBuildFrom
-import scala.reflect.ClassTag
 
 /** A [[org.skife.jdbi.v2.tweak.ContainerFactory]] for Scala collections.
   *
@@ -14,10 +11,10 @@ import scala.reflect.ClassTag
   * @param cbf functional dependency for collection builder.
   */
 class IterableContainerFactory[CC[_] <: Iterable[_]]
-    (implicit tag: ClassTag[CC[_]], cbf: CanBuildFrom[CC[_], Any, CC[Any]])
+    (implicit tag: Manifest[CC[_]], cbf: CanBuildFrom[CC[_], Any, CC[Any]])
   extends ContainerFactory[CC[Any]] {
 
-  def accepts(clazz: Class[_]): Boolean = tag.runtimeClass.isAssignableFrom(clazz)
+  def accepts(clazz: Class[_]): Boolean = tag.erasure.isAssignableFrom(clazz)
 
   def newContainerBuilderFor(clazz: Class[_]): ContainerBuilder[CC[Any]] = {
     new ContainerBuilder[CC[Any]] {

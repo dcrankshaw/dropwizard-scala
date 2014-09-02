@@ -6,7 +6,6 @@ import io.dropwizard.scala.validation.validators._
 import org.hibernate.validator.internal.engine.ValidatorFactoryImpl
 import org.hibernate.validator.internal.metadata.core.ConstraintHelper
 
-import scala.reflect.{ClassTag, classTag}
 import scala.collection.JavaConverters.seqAsJavaListConverter
 
 import java.util
@@ -45,9 +44,9 @@ class ScalaValidatorsBundle extends Bundle {
 
   }
 
-  private def addValidators[A <: Annotation : ClassTag](helper: ConstraintHelper,
+  private def addValidators[A <: Annotation : Manifest](helper: ConstraintHelper,
                                                         validators: List[Class[_ <: ConstraintValidator[A, _]]]) {
-    val annoClass = classTag[A].runtimeClass.asInstanceOf[Class[A]]
+    val annoClass = manifest[A].erasure.asInstanceOf[Class[A]]
     val allValidators = new util.LinkedList[Class[_ <: ConstraintValidator[A, _]]](validators.asJava)
 
     // ensure we don't replace existing validators

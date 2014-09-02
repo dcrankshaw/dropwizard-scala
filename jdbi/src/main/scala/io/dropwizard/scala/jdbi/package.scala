@@ -1,7 +1,5 @@
 package io.dropwizard.scala
 
-import reflect.{ClassTag, classTag}
-
 import org.skife.jdbi.v2._
 import org.skife.jdbi.v2.sqlobject.mixins.Transactional
 import org.skife.jdbi.v2.tweak.HandleCallback
@@ -9,25 +7,27 @@ import org.skife.jdbi.v2.tweak.HandleCallback
 /** Global definitions and implicits for JDBI. */
 package object jdbi {
 
+  implicit final def JDBIWrapper(db: DBI): JDBIWrapper = new JDBIWrapper(db)
+
   /** Provides idiomatic Scala enhancements to the JDBI API.
     *
     * @param db the [[org.skife.jdbi.v2.DBI]] instance to wrap.
     */
-  implicit class JDBIWrapper(db: DBI) {
+  class JDBIWrapper(db: DBI) {
 
     /** Creates a typed DAO instance.
      *
      * @tparam T type of the DAO to create.
      * @return a DAO instance for the specified type.
      */
-    def open[T : ClassTag]: T = db.open[T](classTag[T].runtimeClass.asInstanceOf[Class[T]])
+    def open[T : Manifest]: T = db.open[T](manifest[T].erasure.asInstanceOf[Class[T]])
 
     /** Creates an on-demand typed DAO instance.
       *
       * @tparam T type of the DAO to create.
       * @return an on-demand DAO instance for the specified type.
       */
-    def daoFor[T : ClassTag]: T = db.onDemand[T](classTag[T].runtimeClass.asInstanceOf[Class[T]])
+    def daoFor[T : Manifest]: T = db.onDemand[T](manifest[T].erasure.asInstanceOf[Class[T]])
 
     /** Executes the given function within a transaction.
       *
@@ -103,19 +103,21 @@ package object jdbi {
     }
   }
 
+  implicit final def HandleWrapper(handle: Handle): HandleWrapper = new HandleWrapper(handle)
+
   /** Provides idiomatic Scala enhancements to the JDBI API.
     *
     * @param handle the [[org.skife.jdbi.v2.Handle]] instance to wrap.
     */
-  implicit class HandleWrapper(handle: Handle) {
+  class HandleWrapper(handle: Handle) {
 
     /** Creates a typed DAO instance attached to this [[org.skife.jdbi.v2.Handle]].
       *
       * @tparam A type of the DAO to create.
       * @return a DAO instance for the specified type.
       */
-    def attach[A : ClassTag]: A = {
-      handle.attach(classTag[A].runtimeClass.asInstanceOf[Class[A]])
+    def attach[A : Manifest]: A = {
+      handle.attach(manifest[A].erasure.asInstanceOf[Class[A]])
     }
 
     /** Executes the given function within a transaction.
@@ -179,11 +181,15 @@ package object jdbi {
     }
   }
 
+  implicit final def TransactionalWrapper[A <: Transactional[A]](transactional: A): TransactionalWrapper[A] = {
+    new TransactionalWrapper[A](transactional)
+  }
+
   /** Provides enhancements to the Dropwizard jDBI API for transactional DAOs.
     *
     * @param transactional the [[org.skife.jdbi.v2.sqlobject.mixins.Transactional]] object to wrap.
     */
-  implicit class TransactionalWrapper[A <: Transactional[A]](transactional: A) {
+  class TransactionalWrapper[A <: Transactional[A]](transactional: A) {
 
     /** Executes the given function within a transaction of the given isolation level.
       *

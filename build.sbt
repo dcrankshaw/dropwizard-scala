@@ -20,18 +20,16 @@ scmInfo in ThisBuild := Some(ScmInfo(
 ))
 
 
-// compile with Scala 2.10+
-scalaVersion in ThisBuild := "2.10.4"
+// compile with Scala 2.9.3+
+scalaVersion in ThisBuild := "2.9.3"
 
-crossScalaVersions in ThisBuild := Seq("2.10.4")
+crossScalaVersions in ThisBuild := Seq("2.9.3")
 
 // compile more strictly
-scalacOptions in ThisBuild ++= Seq("-deprecation", "-unchecked", "-feature")
+scalacOptions in ThisBuild ++= Seq("-deprecation", "-unchecked")
 
 // ensure JDK 1.7+
 javacOptions in ThisBuild ++= Seq("-source", "1.7", "-target", "1.7")
-
-scalacOptions in ThisBuild += "-target:jvm-1.7"
 
 // use local Maven repo and Sonatype snapshots for resolving dependencies
 resolvers in ThisBuild ++= Seq(
@@ -41,8 +39,7 @@ resolvers in ThisBuild ++= Seq(
 
 // dependencies
 libraryDependencies in ThisBuild ++= Seq(
-    "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2",
-    "org.scalatest" %% "scalatest" % "2.1.0" % "test",
+    "org.scalatest" %% "scalatest" % "2.0.M5b" % "test",
     "org.mockito" % "mockito-core" % "1.9.5" % "test"
 )
 
